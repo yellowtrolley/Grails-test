@@ -1,0 +1,104 @@
+/****** PROXY ******/
+Preferences -> Network Connections
+from shell:
+$ ./grails add-proxy client --host=172.21.200.140 --port=8080 --username=cons.pguerrero --password=password
+$ ./grails set-proxy client
+
+/******** egit & github **************/
+    Click Team > Remote > Push... and copy and paste the SSH URL of your new GitHub repository
+    If you are behind a firewall which doesn't allow SSH traffic use the GitHub HTTPS URL instead and provide your GitHub user and password instead of using the uploaded public SSH key. To store your credentials into the Eclipse secure store click Store in Secure Store.
+    Note: many HTTP proxies are configured to block HTTP URLs containing a user name, since disclosing a user name in an HTTP URL is considered a security risk. In that case remove the username from the HTTP URL and only provide it in the user field. It will be sent as an HTTP header. 
+http://wiki.eclipse.org/EGit/User_Guide#Push_Upstream
+
+PUTO PROXY DE IPZS no funciona con egit. http://gitref.org/remotes/
+From shell:
+- add a new remote repo of project
+	$ git remote add wep https://github.com/yellowtrolley/wep.git
+- push to remote repo
+	$ git push wep master
+	
+	
+
+1. In GGTS create new Grails Project
+
+2. Package naming. In  /grails-app/conf/Config.groovy
+	grails.project.groupId = "org.pabloguerrero."+appName
+
+3. Create Controller
+	grails> create-controller web
+
+4. Create Domain Class
+	grails> create-domain-class web
+	
+5. DataSource. In DataSource.groovy
+	development {
+        dataSource {
+            dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+            url = "jdbc:h2:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000"
+        }
+    }
+    
+6. Scaffolding. In WebController
+	static scaffold = true
+	
+7. Service Layer.
+	grails> create-service web
+	
+8. Spock tests
+	in conf/BuildConfig.groovy
+	dependencies {
+		test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
+		
+		
+	}
+	plugins {
+		/* Other existing plugins omitted here */
+		test(":spock:0.7") {
+			exclude "spock-grails-support"
+		}
+	}
+	
+	
+CHAPTER 5. Retrieving data
+	Named arguments supported by list():
+		max 		Specifies the maximum number of rows to return
+		offset		Specifies the number of elements into the ResultSet to start at when returning values (useful for pagination)
+		sort		Specifies the field to sort on in the returned list
+		order		Specifies the order of the sort: 'desc' or 'asc' (default is 'asc')
+		ignoreCase 	Sets sorting to ignore case (true by default)
+		fetch 		Specifies eager/lazy fetch strategy as a Map of options
+
+	These options are particular useful for paging functionality and are used by the pagination features of Grails’ default scaffolding. 
+	So for example, let’s say you want posts 11 to 20 for the user "phil" ordered by most recent first. 
+	The corresponding query is:
+		def posts = Post.where {
+			user.loginId == "phil"
+		}.list(max: 10, offset: 10, sort: "dateCreated", order: "desc")
+	
+	
+	*** SQL LOGS ***
+	To see the SQL: in DataSource.groovy 'logSql = true', e.g.
+		dataSource {
+			...
+			logSql = true
+		}
+	
+	but to show values, INSTEAD (to avoid duplicate logs), in Config.groovy
+	log4j = {
+		...
+		debug "org.hibernate.SQL"
+		trace "org.hibernate.type.descriptor.sql.BasicBinder"
+	}
+	This will ensure that all your database updates are logged with the values. 
+	To make the logging more readable you can add some extra settings to DataSource.groovy:
+	hibernate {
+		...
+		format_sql = true
+		use_sql_comments = true
+	}
+	
+	
+	***** FOR ADVANCED QUERYING: 5.3 When Where queries are not suitable *****
+	
+
+*** Next: 
